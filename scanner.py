@@ -1,6 +1,6 @@
 from typing import Any
-from lox import Lox
-from tokens import TokenType, Token
+from lox import Lox as LoxImpl
+from tokens import TokenType, Token, KEYWORDS
 
 
 class Scanner:
@@ -14,7 +14,7 @@ class Scanner:
 
     def scan_tokens(self) -> list[Token]:
         while not self.is_at_end():
-            start = self.current
+            self.start = self.current
             self.scan_token()
 
         self.tokens.append(Token(TokenType.EOF, "", None, self.line))
@@ -62,16 +62,21 @@ class Scanner:
 
             case _:
                 if c.isdigit():
-                    self.number_literal();
-                Lox.error(self.line, "Unexpected character.")
+                    self.number_literal()
+                elif c.isalpha():
+                    self.identifier()
+                else:
+                    print(f'"{c}"')
+                    LoxImpl.error(self.line, "Unexpected character.")
 
     def add_token(self, token_type: TokenType, literal: Any = None) -> None:
         text = self.source[self.start:self.current]
         self.tokens.append(Token(token_type, text, literal, self.line))
 
     def advance(self) -> str:
+        consumed_char = self.source[self.current]
         self.current += 1
-        return self.source[self.current]
+        return consumed_char
 
     def peek(self, lookahead: int = 0) -> str:
         # performs *lookahead*, lookahead is actually greater by 1 since current points to next unconsumed character
@@ -94,9 +99,11 @@ class Scanner:
         while (p := self.peek()) != "\"" and not self.is_at_end():
             if p == "\n":
                 self.line += 1
+            self.advance()
 
         if self.is_at_end():
-            Lox.error(self.line, "uUnterminated string.")
+            LoxImpl.error(self.line, "Unterminated string.")
+            return
 
         self.advance()  # closing quote
 
@@ -115,3 +122,11 @@ class Scanner:
 
         literal = float(self.source[self.start:self.current])
         self.add_token(TokenType.NUMBER, literal)
+
+    def identifier(self) -> None:
+        while self.peek().isalnum():
+            self.advance()
+
+        identifier = self.source[self.start:self.current]
+        token_type = KEYWORDS.get(identifier, TokenType.IDENTIFIER)
+        self.add_token(token_type, identifier)

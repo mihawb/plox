@@ -1,5 +1,4 @@
 import sys
-from scanner import Scanner
 
 
 class Lox:
@@ -18,6 +17,7 @@ class Lox:
 
     @staticmethod
     def run(source: str) -> None:
+        from scanner import Scanner
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
 

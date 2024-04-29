@@ -62,5 +62,25 @@ class Token:
     # 4.2.3: side note on how to turn scanner offset into line and column numbers as a location of the token
     # which is slow but only calculated for an erroneous token
 
-    def __str__(self) -> str:
-        return f"{self.token_type} {self.lexeme} {self.literal}"
+    def __repr__(self) -> str:
+        return f"Token({self.token_type}, lexeme={self.lexeme}, literal={self.literal}, line={self.line})"
+
+
+KEYWORDS = {
+    "and": TokenType.AND,
+    "class": TokenType.CLASS,
+    "else": TokenType.ELSE,
+    "false": TokenType.FALSE,
+    "for": TokenType.FOR,
+    "fun": TokenType.FUN,
+    "if": TokenType.IF,
+    "nil": TokenType.NIL,
+    "or": TokenType.OR,
+    "print": TokenType.PRINT,
+    "return": TokenType.RETURN,
+    "super": TokenType.SUPER,
+    "this": TokenType.THIS,
+    "true": TokenType.TRUE,
+    "var": TokenType.VAR,
+    "while": TokenType.WHILE,
+}
