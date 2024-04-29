@@ -58,23 +58,29 @@ class Scanner:
             case "\t": pass
             case "\n": self.line += 1
 
-            case _: Lox.error(self.line, "Unexpected character.")
+            case "\"": self.string_literal()
+
+            case _:
+                if c.isdigit():
+                    self.number_literal();
+                Lox.error(self.line, "Unexpected character.")
 
     def add_token(self, token_type: TokenType, literal: Any = None) -> None:
         text = self.source[self.start:self.current]
         self.tokens.append(Token(token_type, text, literal, self.line))
 
-    def advance(self) -> chr:
+    def advance(self) -> str:
         self.current += 1
         return self.source[self.current]
 
-    def peek(self) -> chr:
-        # performs *lookahead*
-        if not self.is_at_end():
+    def peek(self, lookahead: int = 0) -> str:
+        # performs *lookahead*, lookahead is actually greater by 1 since current points to next unconsumed character
+        # Lox's scanner looks ahead at most 2 characters
+        if self.current + lookahead >= len(self.source):
             return "\0"
-        return self.source[self.current]
+        return self.source[self.current + lookahead]
 
-    def match_next(self, expected: chr) -> bool:
+    def match_next(self, expected: str) -> bool:
         # combines peek with advance
         if self.is_at_end():
             return False
@@ -84,3 +90,28 @@ class Scanner:
         self.current += 1
         return True
 
+    def string_literal(self) -> None:
+        while (p := self.peek()) != "\"" and not self.is_at_end():
+            if p == "\n":
+                self.line += 1
+
+        if self.is_at_end():
+            Lox.error(self.line, "uUnterminated string.")
+
+        self.advance()  # closing quote
+
+        literal = self.source[self.start + 1:self.current - 1]  # trimming quotes
+        self.add_token(TokenType.STRING, literal)
+
+    def number_literal(self) -> None:
+        while self.peek().isdigit():
+            self.advance()
+
+        if self.peek() == "." and self.peek(lookahead=1).isdigit():
+            self.advance()  # consume the dot
+
+        while self.peek().isdigit():
+            self.advance()
+
+        literal = float(self.source[self.start:self.current])
+        self.add_token(TokenType.NUMBER, literal)
