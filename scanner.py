@@ -49,6 +49,8 @@ class Scanner:
                 if self.match_next("/"):
                     while self.peek() != "\n" and not self.is_at_end():
                         self.advance()
+                elif self.match_next("*"):
+                    self.c_comment()
                 else:
                     self.add_token(TokenType.SLASH)
 
@@ -94,6 +96,19 @@ class Scanner:
 
         self.current += 1
         return True
+
+    def c_comment(self):
+        while not ((p := self.peek()) == "*" and self.peek(lookahead=1) == "/") and not self.is_at_end():
+            if p == "\n":
+                self.line += 1
+            self.advance()
+
+        if self.is_at_end():
+            LoxImpl.error(self.line, "Unterminated C-style comment.")
+            return
+
+        self.advance()
+        self.advance()  # closing */
 
     def string_literal(self) -> None:
         while (p := self.peek()) != "\"" and not self.is_at_end():
