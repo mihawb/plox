@@ -9,4 +9,4 @@ fun identity(a) {
   return a;
 } // inline comment that will be discarded by lexer
 
-print identity(addPair)(1, 2);
+print identity(addPair)/* this one too! */(1, 2);
