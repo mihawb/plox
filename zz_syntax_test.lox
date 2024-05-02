@@ -10,3 +10,5 @@ fun identity(a) {
 } // inline comment that will be discarded by lexer
 
 print identity(addPair)/* this one too! */(1, 2);
+
+var none = nil;
