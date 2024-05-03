@@ -3,14 +3,22 @@ from tokens import Token, TokenType
 from expressions import Expr, Binary, Unary, Literal, Grouping
 
 
+class ParseError(RuntimeError):
+    pass
+
+
 class Parser:
     """Top-down predictive parser based on recursive descent algorithm"""
-    class ParseError(RuntimeError):
-        pass
 
     def __init__(self, tokens: Iterable[Token]) -> None:
         self.tokens = list(tokens)
         self.current = 0
+
+    def parse(self) -> Expr | None:
+        try:
+            return self.expression()
+        except ParseError as err:
+            return None
 
     def expression(self) -> Expr:
         return self.equality()
@@ -89,15 +97,17 @@ class Parser:
 
         if self.match_types(TokenType.LEFT_PAREN):
             expr = self.expression()
-            self.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression.")
+            self.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.")
             return Grouping(expr)
+
+        raise Parser.error(self.peek(), "Expect expression.")
 
     def consume(self, expected_type: TokenType, message: str) -> Token:
         """Consumes a token if it's of expected type, enters error recovery mode otherwise"""
         # TODO (2)
         if self.check_type(expected_type):
             return self.advance()
-        raise self.error(self.peek(), message)
+        raise Parser.error(self.peek(), message)
 
     def match_types(self, *types: TokenType) -> bool:
         """Tries to match next token to supplied list of types, consumes it on match"""
@@ -129,13 +139,15 @@ class Parser:
     def is_at_end(self) -> bool:
         return self.peek().token_type == TokenType.EOF
 
-    def error(self, token: Token, message: str) -> ParseError:
+    @staticmethod
+    def error(token: Token, message: str) -> ParseError:
         from lox import Lox as LoxImpl
         LoxImpl.parser_error(token, message)
-        return self.ParseError()
+        return ParseError()
 
     def synchronize(self) -> None:
-        """Synchronizes parser state to statement boundary after encountering syntax error"""
+        """Synchronizes parser state to statement boundary after encountering syntax error
+           i.e. discards tokens up until one signifying a statement appears."""
         TT = TokenType
         self.advance()
 
@@ -144,7 +156,9 @@ class Parser:
                 return
 
             match self.peek().token_type:
-                case TT.CLASS | TT.FUN | TT.VAR | TT.FOR | TT.IF | TT.WHILE | TT.PRINT | TT.RETURN:
+                case TT.CLASS | TT.FUN | TT.VAR \
+                     | TT.FOR | TT.IF | TT.WHILE \
+                     | TT.PRINT | TT.RETURN:
                     return
 
             self.advance()

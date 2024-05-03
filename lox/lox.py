@@ -1,6 +1,8 @@
 import sys
 from tokens import Token, TokenType
 from scanner import Scanner
+from parser import Parser
+from ast_printer import AstPrinter
 
 
 class Lox:
@@ -29,8 +31,15 @@ class Lox:
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
 
-        for token in tokens:
-            print(token)
+        parser = Parser(tokens)
+        expression = parser.parse()
+
+        if Lox.had_error:
+            return
+
+        print(AstPrinter().print(expression))
+        # REPL input: -123 * (45.67 + 8.901)
+        # REPL output: (* (- 123.0) (group (+ 45.67 8.901)))
 
     @staticmethod
     def run_file(file_path: str) -> None:
