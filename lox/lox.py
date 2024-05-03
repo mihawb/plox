@@ -1,4 +1,6 @@
 import sys
+from tokens import Token, TokenType
+from scanner import Scanner
 
 
 class Lox:
@@ -7,8 +9,15 @@ class Lox:
     had_error = False
 
     @staticmethod
-    def error(line: int, message: str) -> None:
+    def lexer_error(line: int, message: str) -> None:
         Lox.report(line, "", message)
+
+    @staticmethod
+    def parser_error(token: Token, message: str) -> None:
+        if token.token_type == TokenType.EOF:
+            Lox.report(token.line, " at end", message)
+        else:
+            Lox.report(token.line, f"at '{token.lexeme}'", message)
 
     @staticmethod
     def report(line: int, where: str, message: str) -> None:
@@ -17,7 +26,6 @@ class Lox:
 
     @staticmethod
     def run(source: str) -> None:
-        from scanner import Scanner
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
 

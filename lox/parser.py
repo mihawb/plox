@@ -5,6 +5,8 @@ from expressions import Expr, Binary, Unary, Literal, Grouping
 
 class Parser:
     """Top-down predictive parser based on recursive descent algorithm"""
+    class ParseError(RuntimeError):
+        pass
 
     def __init__(self, tokens: Iterable[Token]) -> None:
         self.tokens = list(tokens)
@@ -16,7 +18,7 @@ class Parser:
     def equality(self) -> Expr:
         """Matches an equality operator or anything of higher precedence, is left-associative"""
         # TODO: (1) helper method for all left-associative series
-        #  with swappable kernels for ttypes to match and higher prec. expressions
+        #  with swappable kernels for token types to match and higher precedence expressions
         expr = self.comparison()
 
         while self.match_types(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL):  # while=>()* rule for equality in lox.gram
@@ -95,7 +97,7 @@ class Parser:
         # TODO (2)
         if self.check_type(expected_type):
             return self.advance()
-        # raise panic mode otherwise! but I will finish that tomorrow
+        raise self.error(self.peek(), message)
 
     def match_types(self, *types: TokenType) -> bool:
         """Tries to match next token to supplied list of types, consumes it on match"""
@@ -111,7 +113,7 @@ class Parser:
         # TODO: (2)
         if self.is_at_end():
             return False
-        return self.peek().token_type == t  # what does .type refer to?
+        return self.peek().token_type == t
 
     def peek(self) -> Token:
         return self.tokens[self.current]
@@ -127,13 +129,33 @@ class Parser:
     def is_at_end(self) -> bool:
         return self.peek().token_type == TokenType.EOF
 
+    def error(self, token: Token, message: str) -> ParseError:
+        from lox import Lox as LoxImpl
+        LoxImpl.parser_error(token, message)
+        return self.ParseError()
+
+    def synchronize(self) -> None:
+        """Synchronizes parser state to statement boundary after encountering syntax error"""
+        TT = TokenType
+        self.advance()
+
+        while not self.is_at_end():
+            if self.previous().token_type == TT.SEMICOLON:
+                return
+
+            match self.peek().token_type:
+                case TT.CLASS | TT.FUN | TT.VAR | TT.FOR | TT.IF | TT.WHILE | TT.PRINT | TT.RETURN:
+                    return
+
+            self.advance()
+
 
 if __name__ == "__main__":
-    x = TokenType.BANG_EQUAL
+    x = TokenType.EQUAL
     match x:
         case TokenType.BANG:
             print("boo")
-        case TokenType.BANG_EQUAL:
+        case TokenType.BANG_EQUAL | TokenType.EQUAL:
             print("yay")
         case _:
             print('default boo')
