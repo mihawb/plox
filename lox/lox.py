@@ -1,4 +1,8 @@
 import sys
+from tokens import Token, TokenType
+from scanner import Scanner
+from parser import Parser
+from ast_printer import pprint_expr
 
 
 class Lox:
@@ -7,8 +11,15 @@ class Lox:
     had_error = False
 
     @staticmethod
-    def error(line: int, message: str) -> None:
+    def lexer_error(line: int, message: str) -> None:
         Lox.report(line, "", message)
+
+    @staticmethod
+    def parser_error(token: Token, message: str) -> None:
+        if token.token_type == TokenType.EOF:
+            Lox.report(token.line, " at end", message)
+        else:
+            Lox.report(token.line, f"at '{token.lexeme}'", message)
 
     @staticmethod
     def report(line: int, where: str, message: str) -> None:
@@ -17,12 +28,18 @@ class Lox:
 
     @staticmethod
     def run(source: str) -> None:
-        from scanner import Scanner
         scanner = Scanner(source)
         tokens = scanner.scan_tokens()
 
-        for token in tokens:
-            print(token)
+        parser = Parser(tokens)
+        expression = parser.parse()
+
+        if Lox.had_error:
+            return
+
+        print(pprint_expr(expression))
+        # REPL input: -123 * (45.67 + 8.901)
+        # REPL output: (* (- 123.0) (group (+ 45.67 8.901)))
 
     @staticmethod
     def run_file(file_path: str) -> None:

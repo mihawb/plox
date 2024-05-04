@@ -1,11 +1,16 @@
-expression     → literal
-               | unary
-               | binary
-               | grouping ;
+# ()? -> grouping appears 0 or 1 times
+# ()+ -> 1 or more ; ()* -> 0 or more
 
-literal        → NUMBER | STRING | "true" | "false" | "nil" ;
-grouping       → "(" expression ")" ;
-unary          → ( "-" | "!" ) expression ;
-binary         → expression operator expression ;
-operator       → "==" | "!=" | "<" | "<=" | ">" | ">="
-               | "+"  | "-"  | "*" | "/" ;
+# operator precedence and associativity baked into grammar rules
+# match at precedence level or higher (this is a common set of rules)
+
+expression     → equality ;
+equality       → comparison ( ( "!=" | "==" ) comparison )* ;
+comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+term           → factor ( ( "-" | "+" ) factor )* ;
+factor         → unary ( ( "/" | "*" ) unary )* ;  # recursive production on the left side makes it left associative (multiple factorizations read left-to-right)
+               | unary ;
+unary          → ( "!" | "-" ) unary
+               | primary ;
+primary        → NUMBER | STRING | "true" | "false" | "nil"
+               | "(" expression ")" ;
