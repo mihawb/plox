@@ -17,13 +17,13 @@ class Lox:
     @staticmethod
     def parser_error(token: Token, message: str) -> None:
         if token.token_type == TokenType.EOF:
-            Lox.report(token.line, " at end", message)
+            Lox.report(token.line, "at end", message)
         else:
             Lox.report(token.line, f"at '{token.lexeme}'", message)
 
     @staticmethod
     def report(line: int, where: str, message: str) -> None:
-        print(f"[line {line}] Error{where}: {message}")
+        print(f"[line {line}] Error {where}: {message}")
         Lox.had_error = True
 
     @staticmethod
@@ -40,6 +40,9 @@ class Lox:
         print(pprint_expr(expression))
         # REPL input: -123 * (45.67 + 8.901)
         # REPL output: (* (- 123.0) (group (+ 45.67 8.901)))
+
+        # REPL input: 1 == 2 ? 45 : -123 * (45.67 + 8.901)
+        # REPL output: (if (== 1.0 2.0) then 45.0 else (* (- 123.0) (group (+ 45.67 8.901))))
 
     @staticmethod
     def run_file(file_path: str) -> None:

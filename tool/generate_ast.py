@@ -17,6 +17,7 @@ EXPRS = [
     "Grouping -> expression: Expr",
     "Literal -> value: Any",
     "Unary -> operator: Token, right: Expr",
+    "Conditional -> conditional: Expr, then_branch: Expr, else_branch: Expr"
 ]
 
 

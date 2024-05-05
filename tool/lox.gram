@@ -4,7 +4,8 @@
 # operator precedence and associativity baked into grammar rules
 # match at precedence level or higher (this is a common set of rules)
 
-expression     → equality ;
+expression     → conditional ;
+conditional    → equality ( "?" expression ":" conditional )? ;
 equality       → comparison ( ( "!=" | "==" ) comparison )* ;
 comparison     → term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
 term           → factor ( ( "-" | "+" ) factor )* ;

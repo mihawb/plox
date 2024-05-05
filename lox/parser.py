@@ -1,6 +1,6 @@
 from typing import Iterable
 from tokens import Token, TokenType as TT
-from expressions import Expr, Binary, Unary, Literal, Grouping
+from expressions import Expr, Binary, Unary, Literal, Grouping, Conditional
 
 
 class ParseError(RuntimeError):
@@ -31,7 +31,19 @@ class Parser:
         return expr
 
     def expression(self) -> Expr:
-        return self.equality()
+        return self.conditional()
+
+    def conditional(self) -> Expr:
+        conditional = self.equality()
+
+        if self.peek().token_type == TT.QUESTION:
+            self.advance()
+            then_branch = self.expression()
+            self.consume(TT.COLON, "Expect ':' after then branch of conditional expression.")
+            else_branch = self.conditional()
+            conditional = Conditional(conditional, then_branch, else_branch)
+
+        return conditional
 
     def equality(self) -> Expr:
         """Matches an equality operator or anything of higher precedence, is left-associative"""
@@ -162,6 +174,6 @@ if __name__ == "__main__":
         case _:
             print('default boo')
 
-    tt = TT.MINUS
-    if tt in (TT.FOR, TT.MINUS, TT.CLASS):
-        print(f"{TT.MINUS} matched")
+    tt = TT.QUESTION
+    if tt in (TT.FOR, TT.MINUS, TT.QUESTION, TT.CLASS):
+        print(f"{TT.QUESTION} matched")
