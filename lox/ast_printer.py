@@ -20,6 +20,8 @@ def pprint_expr(expr: Expr) -> str:
             return parenthesize(operator.lexeme, right)
         case Conditional(conditional, then_branch, else_branch):
             return "(if " + pprint_expr(conditional) + " then " + pprint_expr(then_branch) + " else " + pprint_expr(else_branch) + ")"
+        case None:
+            return "[SYNTAX ERROR]"
         case _:
             raise NotImplementedError(f"Non-exhaustive match in AST Pretty Printer failed on expression: {type(expr)}")
 

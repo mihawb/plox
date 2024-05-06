@@ -1,6 +1,3 @@
-# ()? -> grouping appears 0 or 1 times
-# ()+ -> 1 or more ; ()* -> 0 or more
-
 # operator precedence and associativity baked into grammar rules
 # match at precedence level or higher (this is a common set of rules)
 
@@ -14,4 +11,16 @@ factor         → unary ( ( "/" | "*" ) unary )* ;  # recursive production on t
 unary          → ( "!" | "-" ) unary
                | primary ;
 primary        → NUMBER | STRING | "true" | "false" | "nil"
-               | "(" expression ")" ;
+               | "(" expression ")"
+               # error productions (1)
+               | ( "!=" | "==" ) equality
+               | ( ">" | ">=" | "<" | "<=" ) comparison
+               | ( "+" ) term
+               | ( "/" | "*" ) factor ;
+
+# ()? -> grouping appears 0 or 1 times
+# ()+ -> 1 or more ; ()* -> 0 or more
+
+(1) if we get to primary and the expression starts with those symbols it means the user tried using them as unary expr
+and we can point it out to them
+followed by matching production to invalidate all the following matching exprs with left association

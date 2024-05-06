@@ -71,7 +71,7 @@ class Parser:
 
         return self.primary()
 
-    def primary(self) -> Expr:
+    def primary(self) -> Expr | None:
         """Matches a singular literal or a grouping of expressions"""
         if self.is_at_end():
             raise Parser.error(self.peek(), "Expect expression.")
@@ -97,7 +97,26 @@ class Parser:
                 self.consume(TT.RIGHT_PAREN, "Expect ')' after expression.")
                 return Grouping(expr)
 
-        raise Parser.error(self.peek(), "Expect expression.")  # IDK if still necessary
+            # error productions
+
+            case TT.BANG_EQUAL | TT.EQUAL_EQUAL:
+                Parser.error(self.advance(), "Missing left-hand operand for binary operator.")
+                self.equality()
+                return None
+            case TT.GREATER | TT.GREATER_EQUAL | TT.LESS | TT.LESS_EQUAL:
+                Parser.error(self.advance(), "Missing left-hand operand for binary operator.")
+                self.comparison()
+                return None
+            case TT.PLUS:
+                Parser.error(self.advance(), "Missing left-hand operand for binary operator.")
+                self.term()
+                return None
+            case TT.SLASH | TT.STAR:
+                Parser.error(self.advance(), "Missing left-hand operand for binary operator.")
+                self.factor()
+                return None
+
+        raise Parser.error(self.peek(), "Expect expression.")
 
     def consume(self, expected_type: TT, message: str) -> Token:
         """Consumes a token if it's of expected type, enters error recovery mode otherwise"""
