@@ -1,6 +1,6 @@
 from typing import Iterable
 from tokens import Token, TokenType as TT
-from expressions import Expr, Binary, Unary, Literal, Grouping
+from expressions import Expr, Binary, Unary, Literal, Grouping, Conditional
 
 
 class ParseError(RuntimeError):
@@ -31,7 +31,19 @@ class Parser:
         return expr
 
     def expression(self) -> Expr:
-        return self.equality()
+        return self.conditional()
+
+    def conditional(self) -> Expr:
+        conditional = self.equality()
+
+        if self.peek().token_type == TT.QUESTION:
+            self.advance()
+            then_branch = self.expression()
+            self.consume(TT.COLON, "Expect ':' after then branch of conditional expression.")
+            else_branch = self.conditional()
+            conditional = Conditional(conditional, then_branch, else_branch)
+
+        return conditional
 
     def equality(self) -> Expr:
         """Matches an equality operator or anything of higher precedence, is left-associative"""
@@ -59,7 +71,7 @@ class Parser:
 
         return self.primary()
 
-    def primary(self) -> Expr:
+    def primary(self) -> Expr | None:
         """Matches a singular literal or a grouping of expressions"""
         if self.is_at_end():
             raise Parser.error(self.peek(), "Expect expression.")
@@ -85,7 +97,26 @@ class Parser:
                 self.consume(TT.RIGHT_PAREN, "Expect ')' after expression.")
                 return Grouping(expr)
 
-        raise Parser.error(self.peek(), "Expect expression.")  # IDK if still necessary
+            # error productions
+
+            case TT.BANG_EQUAL | TT.EQUAL_EQUAL:
+                Parser.error(self.advance(), "Missing left-hand operand for binary operator.")
+                self.equality()
+                return None
+            case TT.GREATER | TT.GREATER_EQUAL | TT.LESS | TT.LESS_EQUAL:
+                Parser.error(self.advance(), "Missing left-hand operand for binary operator.")
+                self.comparison()
+                return None
+            case TT.PLUS:
+                Parser.error(self.advance(), "Missing left-hand operand for binary operator.")
+                self.term()
+                return None
+            case TT.SLASH | TT.STAR:
+                Parser.error(self.advance(), "Missing left-hand operand for binary operator.")
+                self.factor()
+                return None
+
+        raise Parser.error(self.peek(), "Expect expression.")
 
     def consume(self, expected_type: TT, message: str) -> Token:
         """Consumes a token if it's of expected type, enters error recovery mode otherwise"""
@@ -162,6 +193,6 @@ if __name__ == "__main__":
         case _:
             print('default boo')
 
-    tt = TT.MINUS
-    if tt in (TT.FOR, TT.MINUS, TT.CLASS):
-        print(f"{TT.MINUS} matched")
+    tt = TT.QUESTION
+    if tt in (TT.FOR, TT.MINUS, TT.QUESTION, TT.CLASS):
+        print(f"{TT.QUESTION} matched")

@@ -36,6 +36,8 @@ class Scanner:
             case "+": self.add_token(TokenType.PLUS)
             case ";": self.add_token(TokenType.SEMICOLON)
             case "*": self.add_token(TokenType.STAR)
+            case "?": self.add_token(TokenType.QUESTION)
+            case ":": self.add_token(TokenType.COLON)
 
             # operators
             case "!": self.add_token(TokenType.BANG_EQUAL if self.match_next("=") else TokenType.BANG)

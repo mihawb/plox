@@ -28,3 +28,10 @@ class Literal(Expr):
 class Unary(Expr):
     operator: Token
     right: Expr
+
+
+@dataclass
+class Conditional(Expr):
+    conditional: Expr
+    then_branch: Expr
+    else_branch: Expr
