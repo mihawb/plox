@@ -3,7 +3,7 @@ from tokens import Token, TokenType
 from expressions import Expr, Binary, Unary, Literal, Grouping
 
 
-class ParseError(RuntimeError):
+class LoxParseError(RuntimeError):
     pass
 
 
@@ -17,7 +17,7 @@ class Parser:
     def parse(self) -> Expr | None:
         try:
             return self.expression()
-        except ParseError as err:
+        except LoxParseError as lpe:
             return None
 
     def expression(self) -> Expr:
@@ -140,10 +140,10 @@ class Parser:
         return self.peek().token_type == TokenType.EOF
 
     @staticmethod
-    def error(token: Token, message: str) -> ParseError:
+    def error(token: Token, message: str) -> LoxParseError:
         from lox import Lox as LoxImpl
         LoxImpl.parser_error(token, message)
-        return ParseError()
+        return LoxParseError()
 
     def synchronize(self) -> None:
         """Synchronizes parser state to statement boundary after encountering syntax error
