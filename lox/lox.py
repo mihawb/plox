@@ -1,8 +1,8 @@
 import sys
-from tokens import Token, TokenType
-from scanner import Scanner
-from parser import Parser
-from ast_printer import pprint_expr
+from .tokens import Token, TokenType
+from .scanner import Scanner
+from .parser import Parser
+from .ast_printer import pprint_expr
 
 
 class Lox:
@@ -60,18 +60,3 @@ class Lox:
                 break
             Lox.run(line)
             Lox.had_error = False
-
-
-def main() -> None:
-    match len(sys.argv):
-        case 1:
-            Lox.run_prompt()
-        case 2:
-            Lox.run_file(sys.argv[1])
-        case _:
-            print("Usage: plox [script]")
-            sys.exit(64)
-
-
-if __name__ == "__main__":
-    main()

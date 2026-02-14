@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 # istg I need to learn macros in Rust
 
@@ -9,7 +10,7 @@ TAB = "    "  # 4 spaces in lieu of \t
 IMPORTS = [
     "from dataclasses import dataclass",
     "from typing import Any",
-    "from tokens import Token",
+    "from .tokens import Token",
 ]
 
 EXPRS = [
@@ -33,12 +34,13 @@ def generate_expr_meta_dataclass(expr_def: str) -> str:
     return meta_class_def
 
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python generate_ast.py <AST file path>")
-        sys.exit(64)
+def generate_ast_module(lox_root: Path) -> None:
+    assert lox_root.is_dir(), "Expressions module will be generated automatically in a Lox root directory"
+    print("Generating AST module into Lox root directory at:", lox_root.absolute())
 
-    with open(sys.argv[1], "w") as ast_file:
+    module_path = lox_root / "expressions.py"
+    print("Generating expression.py file:", module_path.absolute())
+    with open(module_path, "w") as ast_file:
 
         ast_file.writelines(map(lambda i: i + "\n", IMPORTS))
         ast_file.write(NLNL)

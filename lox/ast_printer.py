@@ -1,4 +1,4 @@
-from expressions import Expr, Binary, Grouping, Literal, Unary, Conditional
+from .expressions import Expr, Binary, Grouping, Literal, Unary, Conditional
 
 
 def parenthesize(name: str, *exprs: Expr) -> str:

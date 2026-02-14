@@ -1,6 +1,6 @@
 from typing import Iterable
-from tokens import Token, TokenType as TT
-from expressions import Expr, Binary, Unary, Literal, Grouping, Conditional
+from .tokens import Token, TokenType as TT
+from .expressions import Expr, Binary, Unary, Literal, Grouping, Conditional
 
 
 class ParseError(RuntimeError):
@@ -161,7 +161,7 @@ class Parser:
 
     @staticmethod
     def error(token: Token, message: str) -> ParseError:
-        from lox import Lox as LoxImpl
+        from .lox import Lox as LoxImpl
         LoxImpl.parser_error(token, message)
         return ParseError()
 

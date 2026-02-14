@@ -1,5 +1,5 @@
 from typing import Any
-from tokens import TokenType, Token, KEYWORDS
+from .tokens import TokenType, Token, KEYWORDS
 
 
 class Scanner:
@@ -69,7 +69,7 @@ class Scanner:
                 elif c.isalpha():
                     self.identifier()
                 else:
-                    from lox import Lox as LoxImpl
+                    from .lox import Lox as LoxImpl
                     LoxImpl.lexer_error(self.line, "Unexpected character.")
 
     def add_token(self, token_type: TokenType, literal: Any = None) -> None:
@@ -105,7 +105,7 @@ class Scanner:
             self.advance()
 
         if self.is_at_end():
-            from lox import Lox as LoxImpl
+            from .lox import Lox as LoxImpl
             LoxImpl.lexer_error(self.line, "Unterminated C-style comment.")
             return
 
@@ -119,7 +119,7 @@ class Scanner:
             self.advance()
 
         if self.is_at_end():
-            from lox import Lox as LoxImpl
+            from .lox import Lox as LoxImpl
             LoxImpl.lexer_error(self.line, "Unterminated string.")
             return
 
