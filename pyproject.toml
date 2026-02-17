@@ -1,0 +1,26 @@
+[project]
+name = "plox"
+dynamic = ["version"]
+description = "A Lox interpreter implementation in Python"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{name = "mihawb"}]
+keywords = ["lox", "interpreter", "language"]
+
+[project.optional-dependencies]
+dev = ["build", "pytest"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["lox"]
+
+[tool.setuptools.dynamic]
+version = {attr = "lox.__version__"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+

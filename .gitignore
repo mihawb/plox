@@ -1,3 +1,11 @@
+# personal config
 .idea/
 .venv/
+.vscode/
+
+# run and build artifacts
 **/__pycache__/
+.pytest_cache/
+build/
+dist/
+*.egg-info
