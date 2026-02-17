@@ -65,7 +65,7 @@ class Token:
     # which is slow but only calculated for an erroneous token
 
     def __repr__(self) -> str:
-        return f"Token({self.token_type}, lexeme={self.lexeme}, literal={self.literal}, line={self.line})"
+        return f"Token({self.token_type}, lexeme={repr(self.lexeme)}, literal={self.literal}, line={self.line})"
 
 
 KEYWORDS = {

@@ -5,6 +5,7 @@ from .tokens import TokenType, Token, KEYWORDS
 class Scanner:
     def __init__(self, source: str) -> None:
         self.source = source
+        self.source_len = len(source)
         self.tokens: list[Token] = []
 
         self.start = 0
@@ -20,7 +21,7 @@ class Scanner:
         return self.tokens
 
     def is_at_end(self) -> bool:
-        return self.current >= len(self.source)
+        return self.current >= self.source_len
 
     def scan_token(self) -> None:
         c = self.advance()
@@ -66,7 +67,7 @@ class Scanner:
             case _:
                 if c.isdigit():
                     self.number_literal()
-                elif c.isalpha():
+                elif c.isalpha() or c == "_":
                     self.identifier()
                 else:
                     from .lox import Lox as LoxImpl
@@ -84,7 +85,7 @@ class Scanner:
     def peek(self, lookahead: int = 0) -> str:
         # performs *lookahead*, lookahead is actually greater by 1 since current points to next unconsumed character
         # Lox's scanner looks ahead at most 2 characters
-        if self.current + lookahead >= len(self.source):
+        if self.current + lookahead >= self.source_len:
             return "\0"
         return self.source[self.current + lookahead]
 
