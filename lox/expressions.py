@@ -32,6 +32,6 @@ class Unary(Expr):
 
 @dataclass
 class Conditional(Expr):
-    conditional: Expr
+    condition: Expr
     then_branch: Expr
     else_branch: Expr
