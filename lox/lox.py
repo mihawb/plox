@@ -6,33 +6,33 @@ from .interpreter import LoxRuntimeError, interpret
 from .ast_printer import pprint_expr
 
 
-class Lox:
+class LoxImpl:
     # shamelessly using shared metaclass fields to store state without instance initialization
     # yes I do know what I'm doing, ask me about it in the interview
     had_error = False
     had_runtime_error = False
 
     # TODO: move errors and reporting to separate module
-    @staticmethod
-    def lexer_error(line: int, message: str) -> None:
-        Lox.report(line, "", message)
+    # @classmethod
+    # def lexer_error(cls, line: int, message: str) -> None:
+    #     cls.report(line, "", message)
 
     @staticmethod
     def parser_error(token: Token, message: str) -> None:
         if token.token_type == TokenType.EOF:
-            Lox.report(token.line, "at end", message)
+            LoxImpl.report(token.line, "at end", message)
         else:
-            Lox.report(token.line, f"at '{token.lexeme}'", message)
+            LoxImpl.report(token.line, f"at '{token.lexeme}'", message)
 
     @staticmethod
     def runtime_error(lre: LoxRuntimeError) -> None:
         print(f"LoxRuntimeError [line {lre.token.line}]: {lre.message}")
-        Lox.had_runtime_error = True
+        LoxImpl.had_runtime_error = True
 
     @staticmethod
     def report(line: int, where: str, message: str) -> None:
         print(f"[line {line}] Error {where}: {message}")
-        Lox.had_error = True
+        LoxImpl.had_error = True
 
     @staticmethod
     def run(source: str) -> None:
@@ -42,7 +42,7 @@ class Lox:
         parser = Parser(tokens)
         expression = parser.parse()
 
-        if Lox.had_error:
+        if LoxImpl.had_error:
             return
 
         interpret(expression)
@@ -51,12 +51,12 @@ class Lox:
     @staticmethod
     def run_file(file_path: str) -> None:
         with open(file_path, "r") as file:
-            Lox.run(file.read())
+            LoxImpl.run(file.read())
 
-        if Lox.had_error:
+        if LoxImpl.had_error:
             sys.exit(65)
 
-        if Lox.had_runtime_error:
+        if LoxImpl.had_runtime_error:
             sys.exit(70)
 
     @staticmethod
@@ -65,5 +65,5 @@ class Lox:
             line = input("> ")
             if not line:
                 break
-            Lox.run(line)
-            Lox.had_error = False
+            LoxImpl.run(line)
+            LoxImpl.had_error = False

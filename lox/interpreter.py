@@ -1,13 +1,7 @@
 from typing import Any
 from .tokens import Token, TokenType as TT
 from .expressions import Expr, Literal, Grouping, Unary, Binary, Conditional
-
-
-class LoxRuntimeError(Exception):
-	def __init__(self, token: Token, message: str) -> None:
-		super().__init__(message)
-		self.token = token
-		self.message = message
+from .errors import LoxRuntimeError
 
 
 def test_truthiness(obj: Any) -> bool:
@@ -131,5 +125,5 @@ def interpret(expr: Expr) -> None:
 		value = evaluate(expr)
 		print(stringify(value))
 	except LoxRuntimeError as lre:
-		from .lox import Lox as LoxImpl
+		from .lox import LoxImpl
 		LoxImpl.runtime_error(lre)

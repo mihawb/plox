@@ -1,5 +1,5 @@
 import pytest
-from lox.lox import Lox as LoxImpl
+from lox.lox import LoxImpl
 from lox.scanner import Scanner
 from lox.tokens import TokenType as TT
 

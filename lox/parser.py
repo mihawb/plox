@@ -1,11 +1,7 @@
 from typing import Iterable, Callable
 from .tokens import Token, TokenType as TT
 from .expressions import Expr, Binary, Unary, Literal, Grouping, Conditional
-
-
-class ParseError(RuntimeError):
-    pass
-
+from .errors import LoxParseError
 
 class Parser:
     """Top-down predictive parser based on recursive descent algorithm"""
@@ -17,7 +13,7 @@ class Parser:
     def parse(self) -> Expr | None:
         try:
             return self.expression()
-        except ParseError as err:
+        except LoxParseError as err:
             return None
 
     def binary_left_assoc(self, higher_precedence_rule: Callable[[], Expr], *expected_token_types: TT) -> Expr:
@@ -140,10 +136,10 @@ class Parser:
         return self.peek().token_type == TT.EOF
 
     @staticmethod
-    def error(token: Token, message: str) -> ParseError:
-        from .lox import Lox as LoxImpl
+    def error(token: Token, message: str) -> LoxParseError:
+        from .lox import LoxImpl
         LoxImpl.parser_error(token, message)
-        return ParseError()
+        return LoxParseError()
 
     def synchronize(self) -> None:
         """Synchronizes parser state to statement boundary after encountering syntax error

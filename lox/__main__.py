@@ -1,13 +1,13 @@
 import sys
-from .lox import Lox
+from .lox import LoxImpl
 
 
 def main() -> None:
     match len(sys.argv):
         case 1:
-            Lox.run_prompt()
+            LoxImpl.run_prompt()
         case 2:
-            Lox.run_file(sys.argv[1])
+            LoxImpl.run_file(sys.argv[1])
         case _:
             print("Usage: plox [script]")
             sys.exit(64)
