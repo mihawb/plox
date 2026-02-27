@@ -46,9 +46,9 @@ def evaluate_binary_expr(bin_expr: Binary) -> Any:
 	left = evaluate(bin_expr.left)
 	right = evaluate(bin_expr.right)
 
-	match tt := bin_expr.operator.token_type:
+	match (opr := bin_expr.operator).token_type:
 		case TT.MINUS:
-			assert_numeric_operands(tt, left, right)
+			assert_numeric_operands(opr, left, right)
 			return float(left) - float(right)
 		case TT.PLUS:
 			if isinstance(left, float) and isinstance(right, float):
@@ -60,23 +60,23 @@ def evaluate_binary_expr(bin_expr: Binary) -> Any:
 
 
 		case TT.SLASH:
-			assert_numeric_operands(tt, left, right)
+			assert_numeric_operands(opr, left, right)
 			return float(left) / float(right)
 		case TT.STAR:
-			assert_numeric_operands(tt, left, right)
+			assert_numeric_operands(opr, left, right)
 			return float(left) * float(right)
 		
 		case TT.GREATER:
-			assert_numeric_operands(tt, left, right)
+			assert_numeric_operands(opr, left, right)
 			return float(left) > float(right)
 		case TT.GREATER_EQUAL:
-			assert_numeric_operands(tt, left, right)
+			assert_numeric_operands(opr, left, right)
 			return float(left) >= float(right)
 		case TT.LESS:
-			assert_numeric_operands(tt, left, right)
+			assert_numeric_operands(opr, left, right)
 			return float(left) < float(right)
 		case TT.LESS_EQUAL:
-			assert_numeric_operands(tt, left, right)
+			assert_numeric_operands(opr, left, right)
 			return float(left) <= float(right)
 		
 		case TT.EQUAL_EQUAL:
@@ -85,7 +85,7 @@ def evaluate_binary_expr(bin_expr: Binary) -> Any:
 			return left != right
 		
 		case _:
-			raise NotImplementedError(f"Invalid operator for Binary expression: {tt}")
+			raise NotImplementedError(f"Invalid operator for Binary expression: {opr.token_type}")
 
 
 
@@ -125,5 +125,4 @@ def interpret(expr: Expr) -> None:
 		value = evaluate(expr)
 		print(stringify(value))
 	except LoxRuntimeError as lre:
-		from .lox import LoxImpl
-		LoxImpl.runtime_error(lre)
+		lre.report()
