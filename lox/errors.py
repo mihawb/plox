@@ -1,4 +1,4 @@
-from .tokens import Token
+from .tokens import Token, TokenType as TT
 from abc import abstractmethod
 
 
@@ -21,7 +21,16 @@ class LoxScannerError(LoxError):
 
 
 class LoxParseError(Exception):
-    pass
+	def __init__(self, token: Token, message: str) -> None:
+		super().__init__(message)
+		self.token = token
+		self.message = message
+
+	def report(self) -> None:
+		loc = "end" if self.token.token_type == TT.EOF else f"'{self.token.lexeme}'"
+		print(f"[Line {self.token.line} at {loc}] {self.__class__.__name__}: {self.message}")
+		from .lox import LoxImpl
+		LoxImpl.had_error = True
 
 
 class LoxRuntimeError(Exception):

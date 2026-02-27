@@ -17,12 +17,12 @@ class LoxImpl:
     # def lexer_error(cls, line: int, message: str) -> None:
     #     cls.report(line, "", message)
 
-    @staticmethod
-    def parser_error(token: Token, message: str) -> None:
-        if token.token_type == TokenType.EOF:
-            LoxImpl.report(token.line, "at end", message)
-        else:
-            LoxImpl.report(token.line, f"at '{token.lexeme}'", message)
+    # @staticmethod
+    # def parser_error(token: Token, message: str) -> None:
+    #     if token.token_type == TokenType.EOF:
+    #         LoxImpl.report(token.line, "at end", message)
+    #     else:
+    #         LoxImpl.report(token.line, f"at '{token.lexeme}'", message)
 
     @staticmethod
     def runtime_error(lre: LoxRuntimeError) -> None:
