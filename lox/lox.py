@@ -2,6 +2,7 @@ import sys
 from .tokens import Token, TokenType
 from .scanner import Scanner
 from .parser import Parser
+from .interpreter import LoxRuntimeError, interpret
 from .ast_printer import pprint_expr
 
 
@@ -9,7 +10,9 @@ class Lox:
     # shamelessly using shared metaclass fields to store state without instance initialization
     # yes I do know what I'm doing, ask me about it in the interview
     had_error = False
+    had_runtime_error = False
 
+    # TODO: move errors and reporting to separate module
     @staticmethod
     def lexer_error(line: int, message: str) -> None:
         Lox.report(line, "", message)
@@ -20,6 +23,11 @@ class Lox:
             Lox.report(token.line, "at end", message)
         else:
             Lox.report(token.line, f"at '{token.lexeme}'", message)
+
+    @staticmethod
+    def runtime_error(lre: LoxRuntimeError) -> None:
+        print(f"LoxRuntimeError [line {lre.token.line}]: {lre.message}")
+        Lox.had_runtime_error = True
 
     @staticmethod
     def report(line: int, where: str, message: str) -> None:
@@ -37,12 +45,8 @@ class Lox:
         if Lox.had_error:
             return
 
-        print(pprint_expr(expression))
-        # REPL input: -123 * (45.67 + 8.901)
-        # REPL output: (* (- 123.0) (group (+ 45.67 8.901)))
+        interpret(expression)
 
-        # REPL input: 1 == 2 ? 45 : -123 * (45.67 + 8.901)
-        # REPL output: (if (== 1.0 2.0) then 45.0 else (* (- 123.0) (group (+ 45.67 8.901))))
 
     @staticmethod
     def run_file(file_path: str) -> None:
@@ -51,6 +55,9 @@ class Lox:
 
         if Lox.had_error:
             sys.exit(65)
+
+        if Lox.had_runtime_error:
+            sys.exit(70)
 
     @staticmethod
     def run_prompt() -> None:

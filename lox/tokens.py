@@ -64,6 +64,10 @@ class Token:
     # 4.2.3: side note on how to turn scanner offset into line and column numbers as a location of the token
     # which is slow but only calculated for an erroneous token
 
+    @staticmethod
+    def empty(token_type: TokenType) -> Token:
+        return Token(token_type, "", "", 1)
+
     def __repr__(self) -> str:
         return (
             f"Token({str(self.token_type)}, "
