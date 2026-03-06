@@ -30,6 +30,9 @@ def stringify(value: Any) -> str:
 		res = res[:-2] if res[-2:] == ".0" else res
 		return res
 	
+	if isinstance(value, bool):
+		return str(value).lower()
+	
 	return str(value)
 	
 
