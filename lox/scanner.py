@@ -1,5 +1,6 @@
 from typing import Any
 from .tokens import TokenType, Token, KEYWORDS
+from .errors import LoxScannerError
 
 
 class Scanner:
@@ -15,7 +16,10 @@ class Scanner:
     def scan_tokens(self) -> list[Token]:
         while not self.is_at_end():
             self.start = self.current
-            self.scan_token()
+            try: 
+                self.scan_token()
+            except LoxScannerError as lse:
+                lse.report()
 
         self.tokens.append(Token(TokenType.EOF, "", None, self.line))
         return self.tokens
@@ -70,8 +74,7 @@ class Scanner:
                 elif c.isalpha() or c == "_":
                     self.identifier()
                 else:
-                    from .lox import Lox as LoxImpl
-                    LoxImpl.lexer_error(self.line, "Unexpected character.")
+                    raise LoxScannerError(self.line, "Unexpected character.")
 
     def add_token(self, token_type: TokenType, literal: Any = None) -> None:
         text = self.source[self.start:self.current]
@@ -106,9 +109,7 @@ class Scanner:
             self.advance()
 
         if self.is_at_end():
-            from .lox import Lox as LoxImpl
-            LoxImpl.lexer_error(self.line, "Unterminated C-style comment.")
-            return
+            raise LoxScannerError(self.line, "Unterminated C-style comment.")
 
         self.advance()
         self.advance()  # closing */
@@ -120,9 +121,7 @@ class Scanner:
             self.advance()
 
         if self.is_at_end():
-            from .lox import Lox as LoxImpl
-            LoxImpl.lexer_error(self.line, "Unterminated string.")
-            return
+            raise LoxScannerError(self.line, "Unterminated string.")
 
         self.advance()  # closing quote
 

@@ -1,11 +1,7 @@
 from typing import Iterable, Callable
 from .tokens import Token, TokenType as TT
 from .expressions import Expr, Binary, Unary, Literal, Grouping, Conditional
-
-
-class ParseError(RuntimeError):
-    pass
-
+from .errors import LoxParseError
 
 class Parser:
     """Top-down predictive parser based on recursive descent algorithm"""
@@ -17,7 +13,8 @@ class Parser:
     def parse(self) -> Expr | None:
         try:
             return self.expression()
-        except ParseError as err:
+        except LoxParseError as lpe:
+            lpe.report()
             return None
 
     def binary_left_assoc(self, higher_precedence_rule: Callable[[], Expr], *expected_token_types: TT) -> Expr:
@@ -75,7 +72,7 @@ class Parser:
     def primary(self) -> Expr | None:
         """Matches a singular literal or a grouping of expressions"""
         if self.is_at_end():
-            raise Parser.error(self.peek(), "Expect expression.")
+            raise LoxParseError(self.peek(), "Expect expression.")
 
         match self.peek().token_type:
             case TT.FALSE:
@@ -117,13 +114,13 @@ class Parser:
                 self.factor()
                 return None
 
-        raise Parser.error(self.peek(), "Expect expression.")
+        raise LoxParseError(self.peek(), "Expect expression.")
 
     def consume(self, expected_type: TT, message: str) -> Token:
         """Consumes a token if it's of expected type, enters error recovery mode otherwise"""
         if not self.is_at_end() and self.peek().token_type == expected_type:
             return self.advance()
-        raise Parser.error(self.peek(), message)
+        raise LoxParseError(self.peek(), message)
 
     def peek(self) -> Token:
         return self.tokens[self.current]
@@ -138,12 +135,6 @@ class Parser:
 
     def is_at_end(self) -> bool:
         return self.peek().token_type == TT.EOF
-
-    @staticmethod
-    def error(token: Token, message: str) -> ParseError:
-        from .lox import Lox as LoxImpl
-        LoxImpl.parser_error(token, message)
-        return ParseError()
 
     def synchronize(self) -> None:
         """Synchronizes parser state to statement boundary after encountering syntax error
