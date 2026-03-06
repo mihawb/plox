@@ -2,6 +2,13 @@ from .tokens import Token, TokenType as TT
 from abc import abstractmethod
 
 
+class LoxWatchdog:
+	# shamelessly using shared metaclass fields to store state without instance initialization
+    # yes I do know what I'm doing, ask me about it in the interview
+	had_static_error = False
+	had_runtime_error = False
+
+
 class LoxError(Exception):
 	@abstractmethod
 	def report(self) -> None:
@@ -16,8 +23,7 @@ class LoxScannerError(LoxError):
 
 	def report(self) -> None:
 		print(f"[Line {self.line}] {self.__class__.__name__}: {self.message}")
-		from .lox import LoxImpl
-		LoxImpl.had_error = True
+		LoxWatchdog.had_static_error = True
 
 
 class LoxParseError(Exception):
@@ -29,8 +35,7 @@ class LoxParseError(Exception):
 	def report(self) -> None:
 		loc = "end" if self.token.token_type == TT.EOF else f"'{self.token.lexeme}'"
 		print(f"[Line {self.token.line} at {loc}] {self.__class__.__name__}: {self.message}")
-		from .lox import LoxImpl
-		LoxImpl.had_error = True
+		LoxWatchdog.had_static_error = True
 
 
 class LoxRuntimeError(Exception):
@@ -42,6 +47,5 @@ class LoxRuntimeError(Exception):
 	def report(self) -> None:
 		loc = "end" if self.token.token_type == TT.EOF else f"'{self.token.lexeme}'"
 		print(f"[Line {self.token.line} at {loc}] {self.__class__.__name__}: {self.message}")
-		from .lox import LoxImpl
-		LoxImpl.had_runtime_error = True
+		LoxWatchdog.had_runtime_error = True
 		

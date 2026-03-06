@@ -1,5 +1,4 @@
-import pytest
-from lox.lox import LoxImpl
+from lox.errors import LoxWatchdog
 from lox.scanner import Scanner
 from lox.tokens import TokenType as TT
 
@@ -31,7 +30,7 @@ def test_unterminated_c_comment() -> None:
 	scanner = Scanner(source)
 	ts = scanner.scan_tokens()
 
-	assert LoxImpl.had_error, "Scanner error went unreported to LoxImpl"
+	assert LoxWatchdog.had_static_error, "Scanner error went unreported to LoxImpl"
 	assert [t.token_type for t in ts] == expected, "Unterminated C-comment didn't terminate scanning"
 
 def test_unterminated_string() -> None:
@@ -41,5 +40,5 @@ def test_unterminated_string() -> None:
 	scanner = Scanner(source)
 	ts = scanner.scan_tokens()
 
-	assert LoxImpl.had_error, "Scanner error went unreported to LoxImpl"
+	assert LoxWatchdog.had_static_error, "Scanner error went unreported to LoxImpl"
 	assert [t.token_type for t in ts] == expected, "Unterminated string literal didn't terminate scanning"
